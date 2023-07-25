@@ -1,0 +1,38 @@
+
+blueprint:
+  name: 除湿开启
+  description: 湿度高于80%开启所在房间空调除湿模式
+  domain: automation
+  input:
+    humidity_entity:
+      name: humidity sensor
+      selector:
+        entity:
+          domain: sensor
+          device_class: humidity
+    climate_entity:
+      name: climate
+      selector:
+        entity:
+          domain: climate
+
+mode: single
+
+trigger:
+  - platform: numeric_state
+    entity_id: !input humidity_entity
+    above: 80
+condition:
+  - condition: state
+    entity_id: input_boolean.jia_zhong_wu_ren
+    state: "off"
+  - condition: state
+    entity_id: !input climate_entity
+    attribute: hvac_action
+    state: off
+action:
+  - service: climate.set_hvac_mode
+    data:
+      hvac_mode: dry
+    target:
+      entity_id: !input climate_entity
